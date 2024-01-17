@@ -9,6 +9,19 @@ void main() {
 
 const factUri = 'https://03vpefsitf.execute-api.eu-west-1.amazonaws.com/prod/';
 
+// Datenklasse, weil sie Daten speichert und hält.
+class DuckFact {
+  int feistynessRating;
+  bool quack;
+  String fact;
+
+  DuckFact({
+    required this.feistynessRating,
+    required this.quack,
+    required this.fact,
+  });
+}
+
 // Holt das Textgeraffel aus dem Internet und gibt es zurück.
 Future<String> getDataFromApi() async {
   final Response response = await get(Uri.parse(factUri));
@@ -19,12 +32,21 @@ Future<String> getDataFromApi() async {
 }
 
 // Dekodiert das JSON und gibt die Info zurück.
-Future<String> getFact() async {
+Future<DuckFact> getFact() async {
   final String jsonString = await getDataFromApi();
   final Map<String, dynamic> jsonMap = json.decode(jsonString);
+
+  final int feistynessRating = jsonMap['feistynessRating'];
+  final bool quack = jsonMap['quack'];
   final String fact = jsonMap['fact'];
 
-  return fact;
+  final DuckFact newDuckFact = DuckFact(
+    feistynessRating: feistynessRating,
+    quack: quack,
+    fact: fact,
+  );
+
+  return newDuckFact;
 }
 
 class MainApp extends StatefulWidget {
@@ -35,7 +57,7 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  String duckFact = "";
+  DuckFact? duckFact;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +69,9 @@ class _MainAppState extends State<MainApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(duckFact.isEmpty ? 'Noch keine Info geholt.' : duckFact),
+                Text(duckFact == null
+                    ? 'Noch keine Info geholt.'
+                    : duckFact?.fact ?? ""),
                 const SizedBox(height: 16),
                 OutlinedButton(
                   onPressed: () async {
