@@ -20,6 +20,15 @@ class DuckFact {
     required this.quack,
     required this.fact,
   });
+
+  // Erstellt ein neues DuckFact-Objekt aus einer JSON-Map.
+  factory DuckFact.fromJson(Map<String, dynamic> jsonMap) {
+    return DuckFact(
+      fact: jsonMap['fact'],
+      quack: jsonMap['quack'],
+      feistynessRating: jsonMap['feistynessRating'],
+    );
+  }
 }
 
 // Holt das Textgeraffel aus dem Internet und gibt es zurück.
@@ -36,15 +45,7 @@ Future<DuckFact> getFact() async {
   final String jsonString = await getDataFromApi();
   final Map<String, dynamic> jsonMap = json.decode(jsonString);
 
-  final int feistynessRating = jsonMap['feistynessRating'];
-  final bool quack = jsonMap['quack'];
-  final String fact = jsonMap['fact'];
-
-  final DuckFact newDuckFact = DuckFact(
-    feistynessRating: feistynessRating,
-    quack: quack,
-    fact: fact,
-  );
+  final DuckFact newDuckFact = DuckFact.fromJson(jsonMap);
 
   return newDuckFact;
 }
