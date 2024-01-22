@@ -35,7 +35,8 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  String duckFact = "";
+  Future<String>? duckFactFuture;
+  String error = "";
 
   @override
   Widget build(BuildContext context) {
@@ -44,19 +45,32 @@ class _MainAppState extends State<MainApp> {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(duckFact.isEmpty ? 'Noch keine Info geholt.' : duckFact),
-                const SizedBox(height: 16),
-                OutlinedButton(
-                  onPressed: () async {
-                    duckFact = await getFact();
-                    setState(() {});
-                  },
-                  child: const Text("Neue Info"),
-                ),
-              ],
+            child: FutureBuilder(
+              future: duckFactFuture,
+              builder: (context, snapshot) {
+                String duckFact = "";
+                if (snapshot.hasError) {
+                  error = snapshot.error.toString();
+                } else {
+                  error = "";
+                  duckFact = snapshot.data ?? "Keine Info bekommen";
+                }
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(duckFact),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: () async {
+                        duckFactFuture = getFact();
+                        setState(() {});
+                      },
+                      child: const Text("Neue Info"),
+                    ),
+                    if (error.isNotEmpty) Text(error),
+                  ],
+                );
+              },
             ),
           ),
         ),
